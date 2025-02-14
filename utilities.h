@@ -24,8 +24,4 @@ inline uint32_t multiplyShiftHash(uint32_t k, uint32_t l) {
     return hashValue & mask;
 }
 
-inline int multiplyShiftHashRanged(int k, int max) {
-    return multiplyShiftHash(k, 14) % max;
-}
-
 #endif //UTILITIES_H

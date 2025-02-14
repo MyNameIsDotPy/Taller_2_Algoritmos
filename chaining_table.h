@@ -39,8 +39,8 @@ public:
         return static_cast<int>(hashValue % m);
     }
 
-    int h2(int k) {
-        return multiplyShiftHashRanged(k, m);
+    int h2(int k) const {
+        return multiplyShiftHash(k, 14) % m;
     }
 
 private:
