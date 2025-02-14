@@ -1,7 +1,4 @@
-#include <bitset>
-#include <iostream>
-#include <cstdint>
-
+#include "chaining_table.h"
 #include "linked_list.h"
 
 
