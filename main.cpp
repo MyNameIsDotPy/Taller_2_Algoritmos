@@ -1,17 +1,35 @@
 #include "chaining_table.h"
+#include "linear_probing_table.h"
 #include "linked_list.h"
 
 
 int main() {
 
-    ChainingTable<int> hashMap = ChainingTable<int>(10);
+    LinearProbingTable table(7);
 
-    for (int i = 0; i < 100; i++) {
-        hashMap.insert(i);
+    table.insert(10);
+    table.insert(20);
+    table.insert(15);
+    table.insert(7);
+    table.insert(7);
+    table.insert(7);
+    table.insert(7);
+    table.insert(7);
+
+    table.show();
+
+    int* found = table.search(15);
+    if (found) {
+        std::cout << "Found: " << *found << std::endl;
+    } else {
+        std::cout << "Not Found" << std::endl;
     }
 
-    for (int i = 0; i<10; i++) {
-        hashMap.table[i].printList();
+    int* notFound = table.search(99);
+    if (notFound) {
+        std::cout << "Found: " << *notFound << std::endl;
+    } else {
+        std::cout << "Not Found" << std::endl;
     }
 
     return 0;
