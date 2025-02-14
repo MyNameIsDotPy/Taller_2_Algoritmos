@@ -43,6 +43,12 @@ public:
         return multiplyShiftHash(k, 14) % m;
     }
 
+    void show() {
+        for (int i = 0; i < m; i++) {
+            std::cout << "[" << i << "]" << " -> " << table[i].printList();
+        }
+    }
+
 private:
     int m; // Tamaño de la tabla hash
 };
