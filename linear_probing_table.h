@@ -5,4 +5,9 @@
 #ifndef LINEAR_PROBING_TABLE_H
 #define LINEAR_PROBING_TABLE_H
 
+class LinearProbingTable{
+
+
+};
+
 #endif //LINEAR_PROBING_TABLE_H
