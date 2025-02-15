@@ -50,7 +50,7 @@ public:
     }
 
     int h(int k, int i) const {
-        return (multiplyShiftHash(k, 14) + 1) % m;  // Linear probing function
+        return (multiplyShiftHash(k, 14) + i) % m;  // Linear probing function
     }
 
     void show() {
