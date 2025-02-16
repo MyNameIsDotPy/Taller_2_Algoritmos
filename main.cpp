@@ -1,50 +1,110 @@
+#include <iostream>
+#include <vector>
+#include <chrono>
+#include <algorithm>
+#include <random>
 #include "chaining_table.h"
 #include "linear_probing_table.h"
-#include "linked_list.h"
 
+using namespace std;
+using namespace std::chrono;
+
+const int L = 14;
+const int m = 1 << L;  // Table size: 2^L //
+const int MAX_KEY = 30000;
+const int EXPERIMENTS = 100;
+
+// Generate n random keys
+vector<int> generate_keys(int n) {
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<int> dist(1, MAX_KEY);
+
+    vector<int> keys(n);
+    for (int &key : keys) {
+        key = dist(gen);
+    }
+    return keys;
+}
+
+// Measure median time // Used as a decorator
+template<typename Func>
+double measure_time(Func f) {
+    vector<double> times;
+    for (int i = 0; i < EXPERIMENTS; i++) {
+        auto start = high_resolution_clock::now();
+        f();  // Run the function
+        auto end = high_resolution_clock::now();
+        times.push_back(duration<double, micro>(end - start).count());
+    }
+    sort(times.begin(), times.end());  // Sort times
+    return times[EXPERIMENTS / 2];  // Return median
+}
 
 int main() {
+    vector<int> n_values;
+    vector<double> insert_chain, insert_linear;
+    vector<double> search_chain, search_linear;
+    vector<double> delete_chain, delete_linear;
 
-    LinearProbingTable table(7);
+    for (int n = 1; n <= m; n += 100) { // Iterates in multiples of 100 for speed // 1 by 1 spends at least 7 hours processing :u
+        n_values.push_back(n);
 
-    table.insert(10);
-    table.insert(20);
-    table.insert(15);
-    table.insert(7);
-    table.insert(9);
-    table.insert(16);
-    table.insert(8);
-    table.insert(1);
-    table.insert(2);
-    table.insert(3);
+        // Create new hash tables
+        ChainingTable chainTable(m);
+        LinearProbingTable linearTable(m);
 
-    table.show();
+        vector<int> keys = generate_keys(n);
 
-    table.remove(10);
-    table.remove(15);
-    table.remove(9);
-    table.remove(8);
+        // Measure insert time
+        double insert_time_chain = measure_time([&]() {
+            for (int key : keys) chainTable.insert(key);
+        });
+        double insert_time_linear = measure_time([&]() {
+            for (int key : keys) linearTable.insert(key);
+        });
 
-    table.show();
+        // Measure search time
+        vector<int> search_keys = generate_keys(n);
+        double search_time_chain = measure_time([&]() {
+            for (int key : search_keys) chainTable.search(key);
+        });
+        double search_time_linear = measure_time([&]() {
+            for (int key : search_keys) linearTable.search(key);
+        });
 
-    table.insert(10);
-    std::cout << "Showing" << std::endl;
-    table.show();
+        // Measure delete time
+        vector<int> delete_keys = generate_keys(n);
+        double delete_time_chain = measure_time([&]() {
+            for (int key : delete_keys) chainTable.remove(key);
+        });
+        double delete_time_linear = measure_time([&]() {
+            for (int key : delete_keys) linearTable.remove(key);
+        });
 
+        // Store results
+        insert_chain.push_back(insert_time_chain);
+        insert_linear.push_back(insert_time_linear);
+        search_chain.push_back(search_time_chain);
+        search_linear.push_back(search_time_linear);
+        delete_chain.push_back(delete_time_chain);
+        delete_linear.push_back(delete_time_linear);
 
-    int* found = table.search(15);
-    if (found) {
-        std::cout << "Found: " << *found << std::endl;
-    } else {
-        std::cout << "Not Found" << std::endl;
+        cout << "n=" << n << " | Insert (chaining): " << insert_time_chain << " µs, Insert (linear): " << insert_time_linear << " µs\n";
+        cout << "n=" << n << " | Search (chaining): " << search_time_chain << " µs, Search (linear): " << search_time_linear << " µs\n";
+        cout << "n=" << n << " | Delete (chaining): " << delete_time_chain << " µs, Delete (linear): " << delete_time_linear << " µs\n";
     }
 
-    int* notFound = table.search(99);
-    if (notFound) {
-        std::cout << "Found: " << *notFound << std::endl;
-    } else {
-        std::cout << "Not Found" << std::endl;
+    // Save data for Python
+    freopen("timing_results.csv", "w", stdout);
+    cout << "n,insert_chain,insert_linear,search_chain,search_linear,delete_chain,delete_linear\n";
+    for (size_t i = 0; i < n_values.size(); i++) {
+        cout << n_values[i] << ","
+             << insert_chain[i] << "," << insert_linear[i] << ","
+             << search_chain[i] << "," << search_linear[i] << ","
+             << delete_chain[i] << "," << delete_linear[i] << "\n";
     }
+    fclose(stdout);
 
     return 0;
 }
