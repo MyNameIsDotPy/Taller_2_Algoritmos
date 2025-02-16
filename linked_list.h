@@ -58,7 +58,12 @@ class LinkedList {
         return nullptr;
     }
 
-    bool deleteNode(Node<T>* node) {
+    bool remove(T x) {
+        Node<T>* node = search(x);
+        return removeNode(node);
+    }
+
+    bool removeNode(Node<T>* node) {
         if (node == nullptr) return false;
 
         if (node == head) {

@@ -1,56 +1,50 @@
-#ifndef CHAINING_TABLE_H
-#define CHAINING_TABLE_H
+#ifndef CHAINING_intABLE_H
+#define CHAINING_intABLE_H
 
 #include <iostream>
+#include <vector>
+#include <optional>
+#include <functional>
 #include "linked_list.h"
 #include "utilities.h"
 
-template <typename T>
 class ChainingTable {
 public:
-    LinkedList<T>* table;
+    LinkedList<int>* table;
 
     explicit ChainingTable(int m) : m(m) {
-        table = new LinkedList<T>[m];
+        table = new LinkedList<int>[m];
     }
 
-    ~ChainingTable() {
-        delete[] table;
-    }
-
-    void insert(T x) {
-        int hash = h2(x);
+    void insert(int x) {
+        int hash = h(x);
         table[hash].prepend(x);
     }
 
-    T search(T x) {
-        int hash = h2(x);
-        return table[hash].search(x);
-    }
-
-    void remove(T x) {
-        int hash = h2(x);
-        table[hash].deleteNode(x);
-    }
-
-    int h(const T& value) {
-        std::size_t hashValue = std::hash<T>{}(value);
-        std::cout << "Value " << value << " Hashed into " << (hashValue % m) << std::endl;
-        return static_cast<int>(hashValue % m);
-    }
-
-    int h2(int k) const {
+    int h(int k) const {
         return multiplyShiftHash(k, 14) % m;
     }
 
-    void show() {
+    std::optional<int> search(int x) const {
+        int hash = h(x);
+        Node<int>* result = table[hash].search(x);
+        return result ? std::optional<int>(result->data) : std::nullopt;
+    }
+
+    void remove(int x) const {
+        int hash = h(x);
+        table[hash].remove(x);
+    }
+
+    void show() const {
         for (int i = 0; i < m; i++) {
-            std::cout << "[" << i << "]" << " -> " << table[i].printList();
+            std::cout << "[" << i << "]" << " -> ";
+            table[i].printList();
         }
     }
 
 private:
-    int m; // Tamaño de la tabla hash
+    int m;
 };
 
-#endif // CHAINING_TABLE_H
+#endif // CHAINING_intABLE_H
